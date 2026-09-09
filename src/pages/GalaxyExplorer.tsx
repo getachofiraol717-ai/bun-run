@@ -1195,7 +1195,7 @@ const GalaxyExplorer = () => {
                 <button
                   onClick={() => setView('firmament')}
                   className={`px-3 py-1 rounded-full text-[10px] font-orbitron transition-all flex items-center gap-1 ${
-                    view === 'firmament'
+                    (view as ViewMode) === 'firmament'
                       ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow'
                       : 'text-amber-300 hover:text-amber-200 hover:bg-white/5'
                   }`}

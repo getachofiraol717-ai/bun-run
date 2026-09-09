@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import GalaxyBackground from '@/components/GalaxyBackground';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Send, Plus, ArrowLeft, Bot, Zap, Globe } from 'lucide-react';
+import { Users, Send, Plus, ArrowLeft, Bot, Zap, Globe, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 

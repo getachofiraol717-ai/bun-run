@@ -540,7 +540,7 @@ export function useCreateUser() {
         { auth: { persistSession: false, autoRefreshToken: false } }
       );
 
-      let newUserId = crypto.randomUUID();
+      let newUserId: string = crypto.randomUUID();
 
       try {
         const { data: authData, error: authError } = await tempClient.auth.signUp({

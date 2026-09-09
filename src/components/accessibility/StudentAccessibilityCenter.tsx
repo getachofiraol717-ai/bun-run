@@ -45,8 +45,8 @@ export const StudentAccessibilityCenter: React.FC = () => {
   useEffect(() => {
     if (sampleText) {
       try {
-        const translated = brailleTranslationEngine.translateToBraille(sampleText, 1, 'ueb');
-        setBrailleOutput(translated.unicodeText || '⠠⠿⠗⠉⠑ ⠑⠟⠥⠁⠇⠎ ⠍⠁⠎⠎');
+        const translated = brailleTranslationEngine.translate(sampleText);
+        setBrailleOutput(translated.braille || '⠠⠿⠗⠉⠑ ⠑⠟⠥⠁⠇⠎ ⠍⠁⠎⠎');
       } catch {
         setBrailleOutput('⠠⠿⠗⠉⠑ ⠑⠟⠥⠁⠇⠎ ⠍⠁⠎⠎');
       }
@@ -58,7 +58,7 @@ export const StudentAccessibilityCenter: React.FC = () => {
       toast.error('Haptic vibration not supported on this device/browser');
       return;
     }
-    hapticFeedbackEngine.trigger(pattern);
+    hapticFeedbackEngine.play(pattern);
     toast.success(`Triggered ${pattern} haptic pattern`);
   };
 

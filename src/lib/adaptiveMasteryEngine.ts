@@ -178,7 +178,7 @@ export function updateConceptMastery(
           total_attempts: totalAttempts,
           status,
           last_attempt_at: updated.lastAttemptAt,
-        }, { onConflict: 'user_id,concept_id' }).then(({ error }) => {
+        } as any, { onConflict: 'user_id,concept_id' }).then(({ error }) => {
           if (error) console.warn('[MasteryEngine] Supabase concept_mastery upsert error:', error);
         });
       }

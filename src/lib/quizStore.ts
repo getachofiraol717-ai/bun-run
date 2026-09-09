@@ -148,7 +148,7 @@ export function recordQuizAttempt(attempt: QuizAttemptRecord, userId?: string | 
             questionAttempts: attempt.questionAttempts,
             completedAt: attempt.completedAt,
           },
-        }).then(({ error }) => {
+        } as any).then(({ error }) => {
           if (error) console.warn('[QuizStore] Supabase quiz_attempts insert error:', error);
         });
       }

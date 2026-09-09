@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 const db = supabase as any;
 
 type File = { id?: string; path: string; content: string; language: string };
-type Project = { id: string; name: string; description: string; language: string };
+type Project = { id: string; name: string; description: string; language: string; template?: string };
 type GitCommitT = { id: string; message: string; timestamp: number; parent: string | null; snapshot: Record<string, string>; branch: string };
 
 const LANG_FROM_EXT: Record<string, string> = {

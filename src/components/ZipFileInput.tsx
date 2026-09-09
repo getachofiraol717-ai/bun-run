@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import {
@@ -1171,7 +1171,7 @@ export const ZipFileInput: React.FC<ZipFileInputProps> = ({
           title={treePreviewModalConfig.title}
           sourceArchiveName={treePreviewModalConfig.sourceArchiveName}
           bundleTitle={treePreviewModalConfig.bundleTitle}
-          onProceedToMerge={items.length > 0 ? handleInitiateMerge : undefined}
+          onProceedToMerge={items.length > 0 ? handleMergeAndSave : undefined}
         />
       )}
     </div>

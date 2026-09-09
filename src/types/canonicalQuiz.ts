@@ -86,31 +86,41 @@ export type ErrorClassificationType =
 export interface QuestionAttempt {
   questionId: string;
   variantId: string;
-  familyId: string;
-  learningObjective: string;
-  questionText: string;
-  selectedOptionIndex: number;
-  correctOptionIndex: number;
+  familyId?: string;
+  learningObjective?: string;
+  questionText?: string;
+  selectedOptionIndex?: number;
+  selectedOption?: number;
+  correctOptionIndex?: number;
   isCorrect: boolean;
   timeSpentSeconds: number;
   errorClassification?: ErrorClassificationType;
-  retryCount: number;
-  timestamp: string;
+  retryCount?: number;
+  timestamp?: string;
 }
 
 export interface QuizAttemptRecord {
   attemptId: string;
   quizId: string;
-  attemptNumber: number;
-  timestamp: string;
-  score: number;
-  total: number;
-  percentage: number;
+  attemptNumber?: number;
+  timestamp?: string;
+  score?: number;
+  total?: number;
+  percentage?: number;
   passed: boolean;
-  timeSpentTotalSeconds: number;
-  difficulty: QuizDifficulty;
-  questionAttempts: QuestionAttempt[];
+  timeSpentTotalSeconds?: number;
+  difficulty?: QuizDifficulty;
+  questionAttempts?: QuestionAttempt[];
   masteryGained?: Record<string, number>; // learningObjective -> score gain
+  studentId?: string;
+  attemptedAt?: string;
+  scorePercentage?: number;
+  attempts?: QuestionAttempt[];
+  consecutiveFailures?: Record<string, number>;
+  subject?: string;
+  totalQuestions?: number;
+  timeSpentSeconds?: number;
+  completedAt?: string;
 }
 
 export type MasteryStatus = 'NEEDS_PRACTICE' | 'DEVELOPING' | 'MASTERED';
