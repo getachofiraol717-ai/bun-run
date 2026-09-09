@@ -78,8 +78,8 @@ describe('KU PHASE 9 — Export Service & Format Verification', () => {
       padding: 8,
     },
     nodes: new Map([
-      ['root-1', { id: 'root-1', x: 400, y: 300, width: 140, height: 70, text: 'Cell', type: 'root', depth: 0, angle: 0, radius: 0, childIds: ['branch-1'] }],
-      ['branch-1', { id: 'branch-1', parentId: 'root-1', x: 600, y: 300, width: 120, height: 50, text: 'Nucleus', type: 'branch', depth: 1, angle: 0, radius: 150, childIds: [] }],
+      ['root-1', { id: 'root-1', x: 400, y: 300, width: 140, height: 70, text: 'Cell', type: 'root', depth: 0, angle: 0, radius: 0, childIds: ['branch-1'], childrenIds: ['branch-1'] } as unknown as MindMap['nodes'] extends Map<string, infer N> ? N : never],
+      ['branch-1', { id: 'branch-1', parentId: 'root-1', x: 600, y: 300, width: 120, height: 50, text: 'Nucleus', type: 'branch', depth: 1, angle: 0, radius: 150, childIds: [], childrenIds: [] } as unknown as MindMap['nodes'] extends Map<string, infer N> ? N : never],
     ]),
   };
 
