@@ -3,10 +3,10 @@ import { CompanionContext, SecondBookRef } from './types';
 import { libraryAiStream } from './libraryAiClient';
 import {
   ChatInterface,
-  ChatMessageItem,
   CardRenderer,
   TeachingService,
 } from '@/plugins/margeos/ai-tutor-engine';
+import type { ChatMessageItem } from '@/plugins/margeos/ai-tutor-engine/components';
 import type { LearningStyle } from '@/plugins/margeos/ai-tutor-engine/models/LearningStyle';
 import type { ExplanationMode } from '@/plugins/margeos/ai-tutor-engine/models/StudentProfile';
 import { Sparkles, FileText, HelpCircle, Brain, Sigma, Network, BookMarked, Code } from 'lucide-react';
@@ -24,7 +24,7 @@ export const LibraryAITutorTab: React.FC<LibraryAITutorTabProps> = ({
   secondBook,
 }) => {
   const [currentStyle, setCurrentStyle] = useState<LearningStyle | string>('visual');
-  const [currentMode, setCurrentMode] = useState<ExplanationMode>('standard');
+  const [currentMode, setCurrentMode] = useState<ExplanationMode>('simple');
   const [busy, setBusy] = useState<boolean>(false);
   const [activeCard, setActiveCard] = useState<any>(null);
   const [messages, setMessages] = useState<ChatMessageItem[]>([
