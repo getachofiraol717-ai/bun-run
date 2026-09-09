@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw,
   Sun, Moon, BookOpen, Download, Sparkles, Volume2, Maximize2,
@@ -154,6 +154,35 @@ export const Book3DViewer: React.FC<Book3DViewerProps> = ({
   };
 
   const currentSample = SAMPLE_PAGES[(currentPage - 1) % SAMPLE_PAGES.length];
+
+  // ── CompanionContext helpers ──────────────────────────────────
+  const getChapterText = useCallback(async (): Promise<string> => {
+    if (!pdfDoc) return pdfPageText || currentSample.text;
+    const start = Math.max(1, currentPage - 2);
+    const end = Math.min(maxPages, currentPage + 2);
+    const texts = await Promise.all(
+      Array.from({ length: end - start + 1 }, (_, i) => start + i).map((p) => extractPageText(pdfDoc, p))
+    );
+    return texts.filter(Boolean).join('\n\n').slice(0, 12000);
+  }, [pdfDoc, currentPage, maxPages, pdfPageText, currentSample]);
+
+  const getBookSampleText = useCallback(async (): Promise<string> => {
+    if (!pdfDoc) return SAMPLE_PAGES.map((s) => s.text).join('\n\n').slice(0, 14000);
+    const step = Math.max(1, Math.floor(maxPages / 5));
+    const pages: number[] = [];
+    for (let p = 1; p <= maxPages; p += step) pages.push(p);
+    pages.push(maxPages);
+    const texts = await Promise.all([...new Set(pages)].slice(0, 15).map((p) => extractPageText(pdfDoc, p)));
+    return texts.filter(Boolean).join('\n\n[...]\n\n').slice(0, 14000);
+  }, [pdfDoc, maxPages]);
+
+  const jumpToPage = useCallback(
+    (page: number) => {
+      if (page < 1 || page > maxPages) return;
+      handlePageTurn(page, page > currentPage ? 'next' : 'prev');
+    },
+    [maxPages, currentPage]
+  );
 
   // Colors for background modes
   const modeBg =
@@ -367,6 +396,9 @@ export const Book3DViewer: React.FC<Book3DViewerProps> = ({
                   pageText: pdfPageText || currentSample.text,
                   subject,
                   grade,
+                  getChapterText,
+                  getBookSampleText,
+                  onJumpToPage: jumpToPage,
                 }}
                 onClose={() => setShowCompanion(false)}
               />

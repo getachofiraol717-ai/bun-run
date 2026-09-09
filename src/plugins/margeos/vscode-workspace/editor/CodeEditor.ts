@@ -132,7 +132,7 @@ export class CodeEditor {
   }
 
   // Syntax Highlighting
-  getHighlighting(tokens: SyntaxToken[], theme: Record<string, string>): Array<{ start: number; end: number; className: string }> {
+  getHighlighting(tokens: SyntaxToken[], theme: Record<string, string>, content: string): Array<{ start: number; end: number; className: string }> {
     const highlights: Array<{ start: number; end: number; className: string }> = [];
 
     const colorMap: Record<string, string> = {

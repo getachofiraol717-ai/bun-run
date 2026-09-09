@@ -240,6 +240,7 @@ export function getFileIcon(filename: string) {
 export interface ZipFolderTreePreviewProps {
   files: (TreeFileItem | string)[];
   title?: string;
+  bundleTitle?: string;
   sourceArchiveName?: string;
   defaultExpandedDepth?: number;
   maxHeight?: string;

@@ -33,8 +33,8 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
   const userId = "current-student-user";
   const { isInitialized, profile } = useStudyCompanion({ userId });
   const { recommendations, acceptRecommendation, completeRecommendation } = useRecommendations({ userId });
-  const { goals, addGoal, toggleGoalCompleted } = useGoals({ userId });
-  const { progress } = useProgress({ userId });
+  const { goals, createGoal, completeGoal } = useGoals({ userId });
+  const { stats } = useProgress({ userId });
 
   const [newGoalTitle, setNewGoalTitle] = useState("");
 
@@ -42,11 +42,14 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
     e.preventDefault();
     if (!newGoalTitle.trim()) return;
     try {
-      await addGoal({
+      await createGoal({
+        type: "daily",
+        category: "study_time",
         title: newGoalTitle.trim(),
         subject: ctx.subject || "General",
-        targetMinutes: 30,
-        completed: false,
+        targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        targetValue: 30,
+        targetUnit: "minutes",
       });
       setNewGoalTitle("");
       toast.success("Study Goal added to Study Companion!");
@@ -68,7 +71,7 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
           </div>
           <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center gap-1">
             <Zap className="h-3 w-3 text-amber-400" />
-            Streak: {profile?.learningHistory?.streakDays ?? 1} Days
+            Streak: {profile?.engagement?.currentStreak ?? 1} Days
           </span>
         </div>
 
@@ -86,7 +89,7 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
           <div className="min-w-0">
             <div className="text-[10px] text-muted-foreground uppercase font-mono">Mastery Level</div>
             <div className="text-sm font-orbitron font-bold text-foreground">
-              {progress?.masteryScore ?? 78}%
+              {profile?.engagement?.totalConceptsLearned ?? 78}%
             </div>
           </div>
         </div>
@@ -98,7 +101,7 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
           <div className="min-w-0">
             <div className="text-[10px] text-muted-foreground uppercase font-mono">Study Today</div>
             <div className="text-sm font-orbitron font-bold text-foreground">
-              {progress?.todayMinutes ?? 25} mins
+              {stats?.totalStudyTime ?? 25} mins
             </div>
           </div>
         </div>
@@ -188,9 +191,9 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
             goals.map((g) => (
               <button
                 key={g.id}
-                onClick={() => toggleGoalCompleted(g.id)}
+                onClick={() => completeGoal(g.id)}
                 className={`w-full p-2.5 rounded-xl border text-left text-xs transition-all flex items-center justify-between ${
-                  g.completed
+                  g.status === "completed"
                     ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 line-through"
                     : "bg-card/80 border-border/80 text-foreground hover:border-primary/50"
                 }`}
@@ -198,13 +201,13 @@ export const LibraryStudyCompanionTab: React.FC<LibraryStudyCompanionTabProps> =
                 <div className="flex items-center gap-2">
                   <CheckCircle2
                     className={`h-4 w-4 shrink-0 ${
-                      g.completed ? "text-emerald-400" : "text-muted-foreground"
+                      g.status === "completed" ? "text-emerald-400" : "text-muted-foreground"
                     }`}
                   />
                   <span className="font-medium">{g.title}</span>
                 </div>
                 <span className="text-[10px] font-mono text-muted-foreground">
-                  {g.targetMinutes || 30} mins
+                  {g.targetValue || 30} {g.targetUnit || "mins"}
                 </span>
               </button>
             ))

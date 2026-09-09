@@ -427,7 +427,7 @@ Format your responses beautifully with Markdown:
 
       await aiStream({
         messages: apiMessages,
-        mode: "general",
+        mode: "instant",
         provider: "gemini",
         autoSwitch: true,
         onToken: (delta) => {

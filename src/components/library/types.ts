@@ -15,7 +15,7 @@ export interface CompanionContext {
   /** Extracted Document Intelligence Context from Smart PDF Engine */
   analysis?: {
     topics?: Array<{ label: string; pages: number[]; definition?: string }>;
-    formulas?: Array<{ formula: string; explanation?: string; pageNumber?: number }>;
+    formulas?: Array<{ formula: string; explanation?: string | { text?: string; [key: string]: any }; pageNumber?: number }>;
     chapters?: Array<{ title: string; pageStart: number }>;
     learningPath?: Array<{ title: string; pageStart: number }>;
   };

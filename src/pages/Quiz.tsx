@@ -269,6 +269,7 @@ export const Quiz = () => {
       subject: activeCanonicalQuiz?.subject || 'General',
       topic: activeCanonicalQuiz?.topic || 'General',
       learningObjective: questions[currentQ]?.learningObjective || 'Core Concept',
+      variantId: `${questions[currentQ]?.id || currentQ}_v1`,
     };
 
     const isCorrect = idx === currentQuestion.correct;

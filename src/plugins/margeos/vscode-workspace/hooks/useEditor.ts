@@ -245,7 +245,7 @@ export interface UseDebuggerReturn {
   removeWatch: (watchId: string) => boolean;
 }
 
-export function useDebugger(): UseDebuggerReturn {
+export async function useDebugger(): Promise<UseDebuggerReturn> {
   const manager = (await import('../core/DebugManager')).default.getInstance();
 
   const [activeSession, setActiveSession] = useState(manager.getActiveSession());

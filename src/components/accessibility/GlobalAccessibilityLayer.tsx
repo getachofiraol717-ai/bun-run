@@ -67,7 +67,7 @@ export const GlobalAccessibilityLayer: React.FC = () => {
     const message = `Navigated to ${pageName} page`;
     setAriaAnnouncement(message);
     if (features.haptic) {
-      hapticFeedbackEngine.trigger('navigation');
+      hapticFeedbackEngine.play('navigation');
     }
   }, [location.pathname, features.haptic]);
 
@@ -105,7 +105,8 @@ export const GlobalAccessibilityLayer: React.FC = () => {
   useEffect(() => {
     const unbind = visualAlertEngine.subscribe((alert) => {
       if (alert) {
-        setVisualAlert({ message: alert.message || 'System Notification', type: alert.type || 'info' });
+        const first = alert[0];
+        setVisualAlert({ message: first?.message || 'System Notification', type: (first?.type as 'info' | 'warning' | 'success') || 'info' });
         setTimeout(() => setVisualAlert(null), 3500);
       }
     });

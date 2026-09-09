@@ -186,6 +186,7 @@ describe('KU PHASE 7 — Real User Communication & AI Lifecycle Tests', () => {
         content: 'Hello universe',
         message_type: 'text' as const,
         created_at: new Date().toISOString(),
+        status: 'sent' as const,
       };
 
       store.addMessage('conv_1', testMsg);

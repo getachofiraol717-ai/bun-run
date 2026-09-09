@@ -100,17 +100,15 @@ export function getAuditManager(): AuditManager {
 
 // Initialize all engines
 export async function initializeAllEngines(): Promise<void> {
-  await Promise.all([
-    getTerminalSandboxEngine().initialize(),
-    getSessionManager().initialize(),
-    getCommandDispatcher().initialize(),
-    getEnvironmentManager().initialize(),
-    getResourceManager().initialize(),
-    getSecurityPolicyManager().initialize(),
-    getCleanupManager().initialize(),
-    getSandboxController().initialize(),
-    getAuditManager().initialize()
-  ]);
+  await getTerminalSandboxEngine().initialize();
+  getSessionManager();
+  getCommandDispatcher();
+  getEnvironmentManager();
+  getResourceManager();
+  getSecurityPolicyManager();
+  getCleanupManager();
+  getSandboxController();
+  getAuditManager();
 }
 
 // Default export with all engines

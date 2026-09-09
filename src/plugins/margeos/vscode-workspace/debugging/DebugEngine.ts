@@ -12,6 +12,7 @@ export interface DebugConfiguration {
   name: string;
   request: 'launch' | 'attach';
   program?: string;
+  url?: string;
   args?: string[];
   cwd?: string;
   env?: Record<string, string>;
