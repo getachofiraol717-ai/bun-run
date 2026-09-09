@@ -82,7 +82,7 @@ export interface LearningConcept {
   name: string;
   description: string;
   category: string;
-  concepts: string[];
+  concepts?: string[];
   prerequisites: string[];
   resources: LearningResource[];
   exercises: TutoringExercise[];
@@ -718,7 +718,7 @@ export class AICodingTutor {
   private updateConceptMastery(concepts: string[]): void {
     concepts.forEach(conceptName => {
       this.concepts.forEach((concept, key) => {
-        if (concept.concepts.includes(conceptName) || concept.name.includes(conceptName)) {
+        if (concept.concepts?.includes(conceptName) || concept.name.includes(conceptName)) {
           concept.masteryLevel = Math.min(100, concept.masteryLevel + 10);
         }
       });
