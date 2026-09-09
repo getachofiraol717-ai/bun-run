@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.check_and_record_ai_usage(text, int, bigint, text) TO authenticated;

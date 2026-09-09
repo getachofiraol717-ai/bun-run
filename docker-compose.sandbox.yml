@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  margeos-sandbox-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    container_name: margeos-sandbox-terminal
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MARGEOS_SANDBOX=enabled
+      - PORT=3000
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - margeos-net
+
+networks:
+  margeos-net:
+    driver: bridge

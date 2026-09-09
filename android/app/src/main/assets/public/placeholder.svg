@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <!-- Neon Cyan & Blue Accent -->
+    <linearGradient id="cyanBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- Neon Purple & Pink Accent -->
+    <linearGradient id="purplePink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+
+    <!-- Center Glow -->
+    <radialGradient id="centerGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Frame -->
+  <rect width="600" height="800" rx="32" fill="url(#bgGrad)" stroke="#00f0ff" stroke-width="2" stroke-opacity="0.3" />
+
+  <!-- Grid Tech Lines in Background -->
+  <line x1="60" y1="0" x2="60" y2="800" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="180" y1="0" x2="180" y2="800" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="300" y1="0" x2="300" y2="800" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="420" y1="0" x2="420" y2="800" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="540" y1="0" x2="540" y2="800" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+
+  <line x1="0" y1="160" x2="600" y2="160" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="0" y1="320" x2="600" y2="320" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="0" y1="480" x2="600" y2="480" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+  <line x1="0" y1="640" x2="600" y2="640" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.07" />
+
+  <!-- Radial Glow Behind Subject -->
+  <circle cx="300" cy="350" r="240" fill="url(#centerGlow)" />
+
+  <!-- Top Cyber Badge -->
+  <rect x="180" y="48" width="240" height="36" rx="18" fill="#00f0ff" fill-opacity="0.1" stroke="#00f0ff" stroke-width="1.5" stroke-opacity="0.5" />
+  <text x="300" y="71" font-family="'Orbitron', sans-serif, system-ui" font-size="12" font-weight="700" fill="#00f0ff" text-anchor="middle" letter-spacing="3">KNOWLEDGE UNIVERSE</text>
+
+  <!-- Atomic Celestial Orbit Rings -->
+  <ellipse cx="300" cy="350" rx="200" ry="75" fill="none" stroke="#00f0ff" stroke-width="2" stroke-opacity="0.6" transform="rotate(-30 300 350)" stroke-dasharray="10 8" />
+  <ellipse cx="300" cy="350" rx="200" ry="75" fill="none" stroke="#a855f7" stroke-width="2" stroke-opacity="0.6" transform="rotate(30 300 350)" stroke-dasharray="10 8" />
+  <ellipse cx="300" cy="350" rx="210" ry="80" fill="none" stroke="#00d8ff" stroke-width="1.5" stroke-opacity="0.3" transform="rotate(90 300 350)" />
+
+  <!-- Orbiting Nodes -->
+  <circle cx="140" cy="260" r="8" fill="#00f0ff" filter="url(#glow)" />
+  <circle cx="460" cy="440" r="8" fill="#00f0ff" filter="url(#glow)" />
+  <circle cx="455" cy="255" r="7" fill="#ec4899" filter="url(#glow)" />
+  <circle cx="145" cy="445" r="7" fill="#a855f7" filter="url(#glow)" />
+
+  <!-- Floating Futuristic Book Hologram -->
+  <!-- Left Page -->
+  <path d="M 300 410 C 245 385, 175 385, 130 405 L 130 280 C 175 260, 245 260, 300 285 Z" fill="url(#cyanBlue)" fill-opacity="0.25" stroke="#00f0ff" stroke-width="4" stroke-linejoin="round" filter="url(#softGlow)" />
+  <!-- Left Page Lines -->
+  <line x1="160" y1="310" x2="270" y2="322" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+  <line x1="160" y1="335" x2="270" y2="347" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+  <line x1="160" y1="360" x2="245" y2="372" stroke="#00f0ff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+
+  <!-- Right Page -->
+  <path d="M 300 410 C 355 385, 425 385, 470 405 L 470 280 C 425 260, 355 260, 300 285 Z" fill="url(#purplePink)" fill-opacity="0.25" stroke="#c084fc" stroke-width="4" stroke-linejoin="round" filter="url(#softGlow)" />
+  <!-- Right Page Lines -->
+  <line x1="330" y1="322" x2="440" y2="310" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+  <line x1="330" y1="347" x2="440" y2="335" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+  <line x1="330" y1="372" x2="415" y2="360" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+
+  <!-- Book Spine Center Energy Line -->
+  <line x1="300" y1="280" x2="300" y2="420" stroke="#ffffff" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />
+
+  <!-- Floating Crystal Nucleus -->
+  <polygon points="300,170 330,215 300,260 270,215" fill="url(#cyanBlue)" stroke="#ffffff" stroke-width="3" filter="url(#glow)" />
+  <circle cx="300" cy="215" r="7" fill="#ffffff" filter="url(#glow)" />
+
+  <!-- Constellation Nodes & Links above Book -->
+  <circle cx="300" cy="140" r="3" fill="#ffffff" />
+  <circle cx="260" cy="160" r="2.5" fill="#00f0ff" />
+  <circle cx="340" cy="160" r="2.5" fill="#ec4899" />
+  <line x1="300" y1="140" x2="260" y2="160" stroke="#00f0ff" stroke-width="1.5" stroke-opacity="0.6" />
+  <line x1="300" y1="140" x2="340" y2="160" stroke="#ec4899" stroke-width="1.5" stroke-opacity="0.6" />
+
+  <!-- Content / Placeholder Caption Details -->
+  <g id="placeholder-text-group">
+    <rect x="80" y="560" width="440" height="170" rx="20" fill="#0f172a" fill-opacity="0.85" stroke="#00f0ff" stroke-width="1.5" stroke-opacity="0.4" />
+    
+    <text x="300" y="605" font-family="'Orbitron', sans-serif, system-ui" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+      DIGITAL TEXTBOOK
+    </text>
+    
+    <text x="300" y="640" font-family="'Poppins', sans-serif, system-ui" font-size="14" font-weight="500" fill="#00f0ff" text-anchor="middle">
+      AI Knowledge & Interactive Modules
+    </text>
+    
+    <g transform="translate(180, 665)">
+      <rect x="0" y="0" width="240" height="32" rx="16" fill="#00f0ff" fill-opacity="0.15" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.5" />
+      <text x="120" y="21" font-family="'Poppins', sans-serif, system-ui" font-size="11" font-weight="600" fill="#38bdf8" text-anchor="middle">
+        ✨ Powered by MargeOS AI
+      </text>
+    </g>
+  </g>
+</svg>
