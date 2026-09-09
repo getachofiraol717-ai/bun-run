@@ -1,0 +1,50 @@
+# ==========================================
+# MargeOS Sandbox Terminal Dockerfile
+# Production Container Image for Isolated Code Sandbox
+# ==========================================
+
+# Base Node.js image with security hardening
+FROM node:20-alpine AS base
+WORKDIR /app
+
+# Install security tools & python/git/bash dependencies for multi-language execution
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    bash \
+    git \
+    curl \
+    docker-cli \
+    zip \
+    unzip \
+    && rm -rf /var/cache/apk/*
+
+# Copy package manifests
+COPY package*.json ./
+
+# Install production dependencies
+RUN npm ci --only=production
+
+# Copy application source
+COPY . .
+
+# Build Vite application & Sandbox runtime bundle
+RUN npm run build
+
+# Security non-root user setup
+USER node
+
+# Expose sandbox port
+EXPOSE 3000
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
+
+# Environment variables
+ENV NODE_ENV=production \
+    PORT=3000 \
+    MARGEOS_SANDBOX=true
+
+# Start MargeOS Sandbox Server
+CMD ["npm", "start"]
