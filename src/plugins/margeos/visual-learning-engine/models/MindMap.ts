@@ -48,6 +48,8 @@ export interface MindMap {
   // Structure
   rootId: string;
   nodes: Map<string, MindMapNode>;
+  width?: number;
+  height?: number;
 
   // Layout
   layout: MindMapLayout;

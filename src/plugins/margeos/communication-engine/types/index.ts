@@ -50,6 +50,7 @@ export interface Conversation {
   group_id?: string;
   classroom_id?: string;
   last_message?: Message;
+  metadata?: Record<string, any>;
 }
 
 export interface ConversationMember {

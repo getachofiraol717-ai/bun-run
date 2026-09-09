@@ -82,6 +82,7 @@ export interface LearningConcept {
   name: string;
   description: string;
   category: string;
+  concepts: string[];
   prerequisites: string[];
   resources: LearningResource[];
   exercises: TutoringExercise[];

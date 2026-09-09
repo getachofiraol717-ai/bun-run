@@ -5,7 +5,7 @@
  */
 
 import { FileNode, FileNodeType, buildFileTree, sortFileNodes } from '../models/FileNode';
-import FileExplorerEngine from '../core/FileExplorerEngine';
+import FileExplorerEngine, { FileOperationResult } from '../core/FileExplorerEngine';
 
 export interface FileFilter {
   extensions?: string[];
@@ -229,7 +229,7 @@ export class FileExplorer {
     this.emit('clipboardUpdated', { operation: 'copy', count: fileIds.length });
   }
 
-  pasteFiles(projectId: string, targetPath: string): FileOperation[] {
+  pasteFiles(projectId: string, targetPath: string): FileOperationResult[] {
     const results = this.engine.pasteFiles(projectId, targetPath);
     const successful = results.filter(r => r.success).length;
     this.emit('pasteCompleted', { targetPath, successful, failed: results.length - successful });
