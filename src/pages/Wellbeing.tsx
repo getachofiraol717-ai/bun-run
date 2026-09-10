@@ -750,9 +750,9 @@ const Wellbeing = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'binaural', label: '🧠 10Hz Alpha Beats' },
-                      { id: 'rain', label: '🌧️ Soothing Rain' },
-                      { id: 'space', label: '🌌 Deep Delta Space' },
+                      { id: 'binaural', label: '10Hz Alpha Beats', icon: Brain },
+                      { id: 'rain', label: 'Soothing Rain', icon: CloudRain },
+                      { id: 'space', label: 'Deep Delta Space', icon: Waves },
                     ].map(s => (
                       <button
                         key={s.id}
@@ -760,12 +760,13 @@ const Wellbeing = () => {
                           setSoundType(s.id as any);
                           if (isPlayingSound) toggleAmbientSound();
                         }}
-                        className={`p-2.5 rounded-xl text-xs font-poppins transition-all border ${
+                        className={`p-2.5 rounded-xl text-xs font-poppins transition-all border flex flex-col items-center gap-1.5 ${
                           soundType === s.id
                             ? 'bg-primary/20 border-primary text-primary font-bold'
                             : 'bg-black/30 border-white/10 text-muted-foreground hover:text-foreground'
                         }`}
                       >
+                        <s.icon className="h-4 w-4" />
                         {s.label}
                       </button>
                     ))}
