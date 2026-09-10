@@ -454,8 +454,20 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
   }, [updateSettings]);
 
   const stopFocus = useCallback(() => {
-    updateSettings({ focusMode: false, focusStartedAt: null, focusPausedAt: null, focusAccumulated: 0 });
-  }, [updateSettings]);
+    // Record the finished focus session (only if it actually ran for a minute).
+    setSettings(prev => {
+      let seconds = prev.focusAccumulated;
+      if (prev.focusStartedAt) seconds += (Date.now() - prev.focusStartedAt) / 1000;
+      if (seconds >= 60) {
+        const log = readJSON<{ date: string; minutes: number }[]>(FOCUS_SESSIONS_KEY, []);
+        writeJSON(FOCUS_SESSIONS_KEY, [...log, { date: getTodayKey(), minutes: Math.round(seconds / 60) }]);
+        setFocusSessions(prev2 => prev2 + 1);
+      }
+      const next = { ...prev, focusMode: false, focusStartedAt: null, focusPausedAt: null, focusAccumulated: 0 };
+      saveSettings(next);
+      return next;
+    });
+  }, []);
 
   const pauseFocus = useCallback(() => {
     const now = Date.now();
