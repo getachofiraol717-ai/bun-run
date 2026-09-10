@@ -1037,8 +1037,14 @@ export default function AnalysisPanel({
           )
         )}
         {activeTab === "companion" && companionCtx && (
-          <div className="h-full overflow-y-auto p-2">
-            <LibraryStudyCompanionTab ctx={companionCtx} />
+          <div className="h-full min-h-0 flex flex-col">
+            <LibraryCompanion
+              ctx={companionCtx}
+              secondBook={secondBook ?? null}
+              onClose={onClose}
+              initialTab="ask"
+              hideHeader
+            />
           </div>
         )}
       </div>
