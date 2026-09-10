@@ -311,6 +311,7 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
   const [journals, setJournals] = useState<JournalEntry[]>(() => readJSON<JournalEntry[]>(JOURNALS_KEY, []));
   const [challenges, setChallenges] = useState<WellbeingChallenge[]>(() => readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
   const [coachMessages, setCoachMessages] = useState<CoachMessage[]>(() => readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
+  const [focusSessions, setFocusSessions] = useState<number>(() => readJSON<{ date: string }[]>(FOCUS_SESSIONS_KEY, []).length);
 
   // Reload everything when the signed-in account changes, so one student never
   // sees another student's entries and each account keeps its own history.
