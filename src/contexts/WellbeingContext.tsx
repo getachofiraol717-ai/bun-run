@@ -327,6 +327,7 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
     setJournals(readJSON<JournalEntry[]>(JOURNALS_KEY, []));
     setChallenges(readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
     setCoachMessages(readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
+    setFocusSessions(readJSON<{ date: string }[]>(FOCUS_SESSIONS_KEY, []).length);
     hydratedScope.current = accountScope;
   }, [accountScope]);
 
