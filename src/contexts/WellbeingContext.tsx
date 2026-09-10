@@ -158,6 +158,23 @@ const HABITS_KEY = 'ku_wellbeing_habits';
 const JOURNALS_KEY = 'ku_wellbeing_journals';
 const CHALLENGES_KEY = 'ku_wellbeing_challenges';
 const COACH_MESSAGES_KEY = 'ku_wellbeing_coach_messages';
+export const HYDRATION_KEY = 'ku_wellbeing_hydration';
+export const FOCUS_SESSIONS_KEY = 'ku_wellbeing_focus_sessions';
+
+/** All wellbeing data is stored per signed-in account so entries never mix between users. */
+let activeScope = 'guest';
+export const scopedKey = (key: string) => `${key}::${activeScope}`;
+
+const readJSON = <T,>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(scopedKey(key));
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch { return fallback; }
+};
+
+const writeJSON = (key: string, value: unknown) => {
+  try { localStorage.setItem(scopedKey(key), JSON.stringify(value)); } catch {}
+};
 
 const getTodayKey = () => new Date().toISOString().split('T')[0];
 const getDayName = () => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
