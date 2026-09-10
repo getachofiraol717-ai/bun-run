@@ -491,7 +491,7 @@ const PDFReader: React.FC<PDFReaderProps> = ({
 
         {/* PDF viewer area — hidden when analysis is fullscreen */}
         {!(analysisOpen && analysisView === 'full') && (
-        <div className="flex-1 flex flex-col overflow-hidden" style={modeStyles[mode]}>
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden transition-all duration-300" style={modeStyles[mode]}>
           <div className="flex-1 overflow-auto p-4">
             {pdfSrc && pdfDoc && !loadError ? (
               <div className="flex flex-col items-center justify-center min-h-full py-4">

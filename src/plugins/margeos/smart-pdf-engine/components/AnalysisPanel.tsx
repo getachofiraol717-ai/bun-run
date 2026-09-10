@@ -907,11 +907,14 @@ export default function AnalysisPanel({
   const isFull = viewMode === "full";
   // On narrow screens the panel takes the full width so nothing gets clipped;
   // from small screens up it sits beside the page as a side panel.
+  // Split mode: the panel always sits beside the page as a share of the
+  // available width, so the book/PDF shrinks next to it instead of being
+  // covered — on every screen size. Full mode takes the whole area.
   const panelWidthClass = isFull
     ? "w-full min-w-0"
     : isCompanion
-      ? "w-full sm:w-[26rem] sm:min-w-[20rem]"
-      : "w-full sm:w-80 sm:min-w-[17.5rem]";
+      ? "w-[45%] min-w-[15rem] max-w-[26rem] shrink-0"
+      : "w-[40%] min-w-[14rem] max-w-[20rem] shrink-0";
 
   const visibleTabs = companionCtx ? TABS : TABS.filter((t) => t.id !== "companion");
 
