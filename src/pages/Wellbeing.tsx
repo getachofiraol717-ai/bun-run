@@ -11,7 +11,7 @@ import {
   CheckCircle2, RotateCcw, AlertCircle, Plus, Trash2,
   BookOpen, Award, MessageSquare, Send, Calendar,
   Smile, Meh, Frown, Sun, Lock, RefreshCw, Monitor,
-  Sliders, UserCheck, Flame, Check, HelpCircle
+  Sliders, UserCheck, Flame, Check, HelpCircle, Leaf, CloudRain, Waves
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
