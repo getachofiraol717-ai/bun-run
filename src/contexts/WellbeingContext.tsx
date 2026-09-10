@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react';
 import { streamAgent } from '@/plugins/margeos/agentClient';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface SessionLog {
   id: string;
