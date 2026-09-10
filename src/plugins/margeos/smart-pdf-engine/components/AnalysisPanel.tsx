@@ -905,9 +905,13 @@ export default function AnalysisPanel({
 
   const isCompanion = activeTab === "companion";
   const isFull = viewMode === "full";
-  const panelStyle: React.CSSProperties = isFull
-    ? { width: "100%", minWidth: 0 }
-    : { width: isCompanion ? 416 : 320, minWidth: 280 };
+  // On narrow screens the panel takes the full width so nothing gets clipped;
+  // from small screens up it sits beside the page as a side panel.
+  const panelWidthClass = isFull
+    ? "w-full min-w-0"
+    : isCompanion
+      ? "w-full sm:w-[26rem] sm:min-w-[20rem]"
+      : "w-full sm:w-80 sm:min-w-[17.5rem]";
 
   const visibleTabs = companionCtx ? TABS : TABS.filter((t) => t.id !== "companion");
 
