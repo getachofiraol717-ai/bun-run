@@ -905,17 +905,18 @@ export default function AnalysisPanel({
 
   const isCompanion = activeTab === "companion";
   const isFull = viewMode === "full";
-  const panelStyle: React.CSSProperties = isFull
-    ? { width: "100%", minWidth: 0 }
-    : { width: isCompanion ? 416 : 320, minWidth: 280 };
+  // On narrow screens the panel takes the full width so nothing gets clipped;
+  // from small screens up it sits beside the page as a side panel.
+  const panelWidthClass = isFull
+    ? "w-full min-w-0"
+    : isCompanion
+      ? "w-full sm:w-[26rem] sm:min-w-[20rem]"
+      : "w-full sm:w-80 sm:min-w-[17.5rem]";
 
   const visibleTabs = companionCtx ? TABS : TABS.filter((t) => t.id !== "companion");
 
   return (
-    <div
-      className={`flex flex-col h-full bg-card border-l border-border ${className}`}
-      style={panelStyle}
-    >
+    <div className={`flex flex-col h-full min-h-0 bg-card border-l border-border ${panelWidthClass} ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
@@ -1037,8 +1038,14 @@ export default function AnalysisPanel({
           )
         )}
         {activeTab === "companion" && companionCtx && (
-          <div className="h-full overflow-y-auto p-2">
-            <LibraryStudyCompanionTab ctx={companionCtx} />
+          <div className="h-full min-h-0 flex flex-col">
+            <LibraryCompanion
+              ctx={companionCtx}
+              secondBook={secondBook ?? null}
+              onClose={onClose}
+              initialTab="ask"
+              hideHeader
+            />
           </div>
         )}
       </div>
