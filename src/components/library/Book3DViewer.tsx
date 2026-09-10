@@ -301,7 +301,7 @@ export const Book3DViewer: React.FC<Book3DViewerProps> = ({
       <div className="flex-1 relative flex items-center justify-center p-4 sm:p-8 overflow-hidden bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="flex gap-4 w-full h-full max-w-6xl mx-auto">
           {/* 3D Page Flip Viewport */}
-          <div className="flex-1 flex flex-col items-center justify-center relative perspective-[1200px]">
+          <div className="flex-1 min-w-0 flex flex-col items-center justify-center relative perspective-[1200px] transition-all duration-300">
             {/* Page Navigation Left Arrow */}
             <button
               onClick={() => handlePageTurn(currentPage - 1, 'prev')}
@@ -387,7 +387,7 @@ export const Book3DViewer: React.FC<Book3DViewerProps> = ({
 
           {/* AI Tutor Drawer Panel if Open */}
           {showCompanion && (
-            <div className="w-80 sm:w-96 h-full glass-strong rounded-2xl border border-border/80 shadow-2xl flex flex-col overflow-hidden animate-slide-in-right">
+            <div className="w-[40%] min-w-[16rem] max-w-md shrink-0 h-full glass-strong rounded-2xl border border-border/80 shadow-2xl flex flex-col overflow-hidden animate-slide-in-right">
               <LibraryCompanion
                 ctx={{
                   bookTitle,
