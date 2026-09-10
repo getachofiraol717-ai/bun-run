@@ -270,9 +270,17 @@ const Wellbeing = () => {
 
   const handleWaterAdd = (amount: number) => {
     const next = waterMl + amount;
+    const today = new Date().toISOString().split('T')[0];
     setWaterMl(next);
-    localStorage.setItem('ku_wellbeing_water', next.toString());
-    addTelemetryLog(`💧 Logged +${amount}ml water (${next}ml total)`, 'health');
+    try {
+      localStorage.setItem(scopedKey('ku_wellbeing_water'), JSON.stringify({ date: today, ml: next }));
+      // Record the day once the 2000ml target is reached, for the hydration challenge.
+      if (next >= 2000) {
+        const days: string[] = JSON.parse(localStorage.getItem(scopedKey(HYDRATION_KEY)) || '[]');
+        if (!days.includes(today)) localStorage.setItem(scopedKey(HYDRATION_KEY), JSON.stringify([...days, today]));
+      }
+    } catch {}
+    addTelemetryLog(`Logged +${amount}ml water (${next}ml total)`, 'health');
     toast.success(`Hydration logged: ${next} / 2000 ml`);
   };
 
