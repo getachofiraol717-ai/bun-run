@@ -446,20 +446,21 @@ const Wellbeing = () => {
               </span>
               <div className="grid grid-cols-2 sm:flex items-center gap-1 w-full sm:w-auto">
                 {[
-                  { id: 'cyberpunk', label: '🌌 Cyberpunk' },
-                  { id: 'zen', label: '🌿 Zen' },
-                  { id: 'telemetry', label: '⚡ Telemetry' },
-                  { id: 'solar', label: '☀️ Solar' },
+                  { id: 'cyberpunk', label: 'Cyberpunk', icon: Sparkles },
+                  { id: 'zen', label: 'Zen', icon: Leaf },
+                  { id: 'telemetry', label: 'Telemetry', icon: Activity },
+                  { id: 'solar', label: 'Solar', icon: Sun },
                 ].map(t => (
                   <button
                     key={t.id}
                     onClick={() => handleThemeChange(t.id as DesignTheme)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5 ${
                       designTheme === t.id
                         ? 'bg-primary text-primary-foreground shadow-md font-bold scale-105'
                         : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                     }`}
                   >
+                    <t.icon className="h-3.5 w-3.5" />
                     {t.label}
                   </button>
                 ))}
