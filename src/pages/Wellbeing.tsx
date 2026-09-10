@@ -51,8 +51,14 @@ const Wellbeing = () => {
   // Real-time live tracking states (second-by-second)
   const [livePageSeconds, setLivePageSeconds] = useState(0);
   const [eyeRestCountdown, setEyeRestCountdown] = useState(20 * 60); // 20 minutes countdown
+  // Hydration starts empty every day and only counts what the student logs.
   const [waterMl, setWaterMl] = useState(() => {
-    return Number(localStorage.getItem('ku_wellbeing_water') || 1000);
+    try {
+      const raw = localStorage.getItem(scopedKey('ku_wellbeing_water'));
+      if (!raw) return 0;
+      const saved = JSON.parse(raw) as { date: string; ml: number };
+      return saved.date === new Date().toISOString().split('T')[0] ? saved.ml : 0;
+    } catch { return 0; }
   });
   const [postureAlertSecs, setPostureAlertSecs] = useState(45 * 60);
 
