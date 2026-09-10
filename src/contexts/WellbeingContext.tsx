@@ -660,9 +660,41 @@ Instructions:
     }
   }, [data, habits, goals]);
 
+  // Focus score is measured, never invented: it blends how much of today's study
+  // goal is met, how many of today's habits are ticked, and today's self-reported
+  // focus rating. Zero data means zero score.
+  const focusScore = useMemo(() => {
+    const today = getTodayKey();
+    const goalPart = Math.min(1, data.dailyGoal > 0 ? data.todayMinutes / data.dailyGoal : 0);
+    const habitPart = habits.length ? habits.filter(h => h.completedDates.includes(today)).length / habits.length : 0;
+    const todayCheckIn = checkIns.find(c => c.date === today);
+    const parts: number[] = [goalPart, habitPart];
+    if (todayCheckIn) parts.push(todayCheckIn.focus / 5);
+    const avg = parts.reduce((a, b) => a + b, 0) / parts.length;
+    return Math.round(avg * 100);
+  }, [data.todayMinutes, data.dailyGoal, habits, checkIns]);
+
+  // Challenge progress is derived from actual logs instead of preset numbers.
+  const liveChallenges = useMemo(() => {
+    const hydrationDays = readJSON<string[]>(HYDRATION_KEY, []).length;
+    const studyDays = data.weeklyData.filter(d => d.totalMinutes > 0).length;
+    const derived: Record<string, number> = {
+      c1: studyDays,
+      c2: hydrationDays,
+      c3: journals.length,
+      c4: focusSessions,
+    };
+    return challenges.map(c => {
+      const progress = derived[c.id] !== undefined ? Math.min(c.target, derived[c.id]) : c.progress;
+      return { ...c, progress, completed: c.completed || progress >= c.target };
+    });
+  }, [challenges, data.weeklyData, journals, focusSessions]);
+
+  const liveData = useMemo(() => ({ ...data, focusScore }), [data, focusScore]);
+
   return (
     <WellbeingContext.Provider value={{
-      data, settings, checkIns, goals, habits, journals, challenges, coachMessages,
+      data: liveData, settings, checkIns, goals, habits, journals, challenges: liveChallenges, coachMessages,
       startSession, endSession, setDailyGoal, resetToday, updateSettings,
       getFocusElapsed, startFocus, stopFocus, pauseFocus, resumeFocus,
       addCheckIn, addGoal, updateGoalProgress, toggleGoalStatus, deleteGoal,
