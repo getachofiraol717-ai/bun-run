@@ -221,17 +221,9 @@ export const GlobalAccessibilityLayer: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Quick Accessibility Dock Button */}
+      {/* Quick Accessibility menu — no floating button; opens with Alt + A */}
       <div className="fixed bottom-4 left-4 z-50">
-        <button
-          onClick={() => setFloatingMenuOpen(!floatingMenuOpen)}
-          className="p-3 rounded-full bg-primary text-primary-foreground font-orbitron text-xs shadow-2xl neon-glow flex items-center gap-2 hover:scale-105 transition-transform"
-          title="Quick Accessibility (Alt + A)"
-          aria-label="Toggle Quick Accessibility Menu"
-        >
-          <Sparkles className="h-5 w-5" />
-          <span className="hidden sm:inline font-bold">Accessibility</span>
-        </button>
+
 
         {/* Quick Menu Popover */}
         {floatingMenuOpen && (
