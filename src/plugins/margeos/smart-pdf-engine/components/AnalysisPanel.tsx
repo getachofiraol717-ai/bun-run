@@ -916,10 +916,7 @@ export default function AnalysisPanel({
   const visibleTabs = companionCtx ? TABS : TABS.filter((t) => t.id !== "companion");
 
   return (
-    <div
-      className={`flex flex-col h-full bg-card border-l border-border ${className}`}
-      style={panelStyle}
-    >
+    <div className={`flex flex-col h-full min-h-0 bg-card border-l border-border ${panelWidthClass} ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
