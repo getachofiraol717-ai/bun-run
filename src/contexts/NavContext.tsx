@@ -85,6 +85,8 @@ export const NavProvider = ({ children }: { children: ReactNode }) => {
         });
       }
     }
+    // Guard against a broken/sparse table hiding nearly everything.
+    if (merged.filter(item => item.visible).length < 3) return defaultNavItems;
     return merged;
   })();
 
