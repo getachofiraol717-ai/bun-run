@@ -548,11 +548,15 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
         ? h.completedDates.filter(d => d !== dateStr)
         : [...h.completedDates, dateStr];
 
-      // Calculate simple streak count
-      const sorted = [...nextDates].sort().reverse();
+      // Real streak: consecutive days completed, counting back from today.
+      const done = new Set(nextDates);
       let streak = 0;
-      if (sorted.length > 0) {
-        streak = sorted.length; // Count total completions as active streak metric
+      const cursor = new Date();
+      // A streak stays alive if today is still open (not yet ticked).
+      if (!done.has(cursor.toISOString().split('T')[0])) cursor.setDate(cursor.getDate() - 1);
+      while (done.has(cursor.toISOString().split('T')[0])) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
       }
 
       return {
