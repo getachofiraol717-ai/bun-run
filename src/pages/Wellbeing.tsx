@@ -37,14 +37,14 @@ const Wellbeing = () => {
   const [focusDisplay, setFocusDisplay] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  // Design Theme state (saved in localStorage)
+  // Design Theme state, saved per account
   const [designTheme, setDesignTheme] = useState<DesignTheme>(() => {
-    return (localStorage.getItem('ku_wellbeing_theme') as DesignTheme) || 'cyberpunk';
+    return (localStorage.getItem(scopedKey('ku_wellbeing_theme')) as DesignTheme) || 'cyberpunk';
   });
 
   const handleThemeChange = (theme: DesignTheme) => {
     setDesignTheme(theme);
-    localStorage.setItem('ku_wellbeing_theme', theme);
+    localStorage.setItem(scopedKey('ku_wellbeing_theme'), theme);
     toast.success(`Theme style updated to ${theme.toUpperCase()}`);
   };
 
