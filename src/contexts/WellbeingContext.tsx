@@ -254,26 +254,45 @@ interface TrackingState {
   dailyGoal: number;
 }
 
-const loadTracking = (): TrackingState | null => {
-  try {
-    const raw = localStorage.getItem(TRACKING_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-};
+const loadTracking = (): TrackingState | null => readJSON<TrackingState | null>(TRACKING_KEY, null);
 
-const saveTracking = (state: TrackingState) => {
-  try { localStorage.setItem(TRACKING_KEY, JSON.stringify(state)); } catch {}
-};
+const saveTracking = (state: TrackingState) => writeJSON(TRACKING_KEY, state);
 
-const loadSettings = (): WellbeingSettings => {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
-  } catch { return defaultSettings; }
-};
+const loadSettings = (): WellbeingSettings => ({ ...defaultSettings, ...readJSON(SETTINGS_KEY, {}) });
 
-const saveSettings = (s: WellbeingSettings) => {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch {}
+const saveSettings = (s: WellbeingSettings) => writeJSON(SETTINGS_KEY, s);
+
+/** Rebuilds today's tracking snapshot from storage for the active account. */
+const buildDataFromStorage = (): WellbeingData => {
+  const tracking = loadTracking();
+  const today = getTodayKey();
+  if (tracking && tracking.todayKey === today) {
+    let extraMinutes = 0;
+    if (tracking.sessionStartedAt) extraMinutes = (Date.now() - tracking.sessionStartedAt) / 60000;
+    return {
+      ...defaultData,
+      todayMinutes: tracking.todayMinutes + extraMinutes,
+      weeklyData: tracking.weeklyData || generateEmptyWeekly(),
+      sessionHistory: tracking.sessionHistory || [],
+      screenTimeByPage: tracking.screenTimeByPage || {},
+      dailyGoal: tracking.dailyGoal || 60,
+      currentSession: tracking.sessionStartedAt ? {
+        id: tracking.sessionStartedAt.toString(),
+        page: tracking.currentPage || 'App',
+        startTime: tracking.sessionStartedAt,
+        duration: extraMinutes,
+      } : null,
+    };
+  }
+  if (tracking) {
+    return {
+      ...defaultData,
+      weeklyData: tracking.weeklyData || generateEmptyWeekly(),
+      dailyGoal: tracking.dailyGoal || 60,
+      todayMinutes: 0,
+    };
+  }
+  return defaultData;
 };
 
 export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
