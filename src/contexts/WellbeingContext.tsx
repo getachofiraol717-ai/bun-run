@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react';
 import { streamAgent } from '@/plugins/margeos/agentClient';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface SessionLog {
   id: string;
@@ -158,6 +159,23 @@ const HABITS_KEY = 'ku_wellbeing_habits';
 const JOURNALS_KEY = 'ku_wellbeing_journals';
 const CHALLENGES_KEY = 'ku_wellbeing_challenges';
 const COACH_MESSAGES_KEY = 'ku_wellbeing_coach_messages';
+export const HYDRATION_KEY = 'ku_wellbeing_hydration';
+export const FOCUS_SESSIONS_KEY = 'ku_wellbeing_focus_sessions';
+
+/** All wellbeing data is stored per signed-in account so entries never mix between users. */
+let activeScope = 'guest';
+export const scopedKey = (key: string) => `${key}::${activeScope}`;
+
+const readJSON = <T,>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(scopedKey(key));
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch { return fallback; }
+};
+
+const writeJSON = (key: string, value: unknown) => {
+  try { localStorage.setItem(scopedKey(key), JSON.stringify(value)); } catch {}
+};
 
 const getTodayKey = () => new Date().toISOString().split('T')[0];
 const getDayName = () => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
@@ -195,30 +213,26 @@ const defaultData: WellbeingData = {
   sessionHistory: [],
   weeklyData: generateEmptyWeekly(),
   screenTimeByPage: {},
-  focusScore: 88,
+  focusScore: 0,
   breakReminders: 0,
 };
 
+// Suggested starting habits — no fake streaks or completions.
 const initialDefaultHabits: WellbeingHabit[] = [
-  { id: 'h1', title: 'Read 20 Minutes', category: 'study', frequency: 'daily', streak: 3, completedDates: [getTodayKey()], createdAt: Date.now() - 86400000 * 3 },
-  { id: 'h2', title: 'Review Study Notes', category: 'study', frequency: 'daily', streak: 2, completedDates: [], createdAt: Date.now() - 86400000 * 2 },
-  { id: 'h3', title: 'Hydrate (2 Liters)', category: 'health', frequency: 'daily', streak: 4, completedDates: [getTodayKey()], createdAt: Date.now() - 86400000 * 4 },
-  { id: 'h4', title: '20-20-20 Eye Breaks', category: 'health', frequency: 'daily', streak: 1, completedDates: [], createdAt: Date.now() - 86400000 },
-  { id: 'h5', title: '15 Min Outdoor Walk', category: 'health', frequency: 'daily', streak: 2, completedDates: [], createdAt: Date.now() - 86400000 * 2 },
-  { id: 'h6', title: 'Daily Reflection Journal', category: 'mindfulness', frequency: 'daily', streak: 1, completedDates: [], createdAt: Date.now() - 86400000 },
+  { id: 'h1', title: 'Read 20 Minutes', category: 'study', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h2', title: 'Review Study Notes', category: 'study', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h3', title: 'Hydrate (2 Liters)', category: 'health', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h4', title: '20-20-20 Eye Breaks', category: 'health', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h5', title: 'Daily Reflection Journal', category: 'mindfulness', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
 ];
 
-const initialDefaultGoals: WellbeingGoal[] = [
-  { id: 'g1', title: 'Study 5 Hours This Week', description: 'Maintain consistent deep learning blocks across core subjects', category: 'study', targetValue: 300, currentValue: 145, unit: 'mins', status: 'active', createdAt: Date.now() },
-  { id: 'g2', title: 'Maintain 5-Day Habit Streak', description: 'Complete at least 3 daily habits every day', category: 'habits', targetValue: 5, currentValue: 3, unit: 'days', status: 'active', createdAt: Date.now() },
-  { id: 'g3', title: 'Complete 5 Reflection Journal Entries', description: 'Reflect on learning growth and daily accomplishments', category: 'personal', targetValue: 5, currentValue: 2, unit: 'entries', status: 'active', createdAt: Date.now() },
-];
+const initialDefaultGoals: WellbeingGoal[] = [];
 
 const initialDefaultChallenges: WellbeingChallenge[] = [
-  { id: 'c1', title: '7-Day Consistent Study Streak', description: 'Log active learning time every day for 7 consecutive days', period: 'weekly', xpReward: 150, progress: 4, target: 7, completed: false, badge: '🔥 Streak Master' },
-  { id: 'c2', title: 'Hydration Hero', description: 'Log 2000ml of water hydration for 3 days this week', period: 'weekly', xpReward: 100, progress: 2, target: 3, completed: false, badge: '💧 Hydration Hero' },
-  { id: 'c3', title: 'Mindful Learner', description: 'Complete 3 personal growth journal reflections', period: 'weekly', xpReward: 120, progress: 2, target: 3, completed: false, badge: '📝 Mindful Learner' },
-  { id: 'c4', title: 'Deep Focus Master', description: 'Complete 4 study focus sessions with zero distractions', period: 'monthly', xpReward: 200, progress: 3, target: 4, completed: false, badge: '🧠 Focus Specialist' },
+  { id: 'c1', title: '7-Day Consistent Study Streak', description: 'Log active learning time every day for 7 consecutive days', period: 'weekly', xpReward: 150, progress: 0, target: 7, completed: false, badge: '🔥 Streak Master' },
+  { id: 'c2', title: 'Hydration Hero', description: 'Reach your 2000ml hydration target on 3 days this week', period: 'weekly', xpReward: 100, progress: 0, target: 3, completed: false, badge: '💧 Hydration Hero' },
+  { id: 'c3', title: 'Mindful Learner', description: 'Complete 3 personal growth journal reflections', period: 'weekly', xpReward: 120, progress: 0, target: 3, completed: false, badge: '📝 Mindful Learner' },
+  { id: 'c4', title: 'Deep Focus Master', description: 'Complete 4 study focus sessions', period: 'monthly', xpReward: 200, progress: 0, target: 4, completed: false, badge: '🧠 Focus Specialist' },
 ];
 
 const defaultCoachWelcomeMessages: CoachMessage[] = [
@@ -241,133 +255,89 @@ interface TrackingState {
   dailyGoal: number;
 }
 
-const loadTracking = (): TrackingState | null => {
-  try {
-    const raw = localStorage.getItem(TRACKING_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-};
+const loadTracking = (): TrackingState | null => readJSON<TrackingState | null>(TRACKING_KEY, null);
 
-const saveTracking = (state: TrackingState) => {
-  try { localStorage.setItem(TRACKING_KEY, JSON.stringify(state)); } catch {}
-};
+const saveTracking = (state: TrackingState) => writeJSON(TRACKING_KEY, state);
 
-const loadSettings = (): WellbeingSettings => {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
-  } catch { return defaultSettings; }
-};
+const loadSettings = (): WellbeingSettings => ({ ...defaultSettings, ...readJSON(SETTINGS_KEY, {}) });
 
-const saveSettings = (s: WellbeingSettings) => {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch {}
+const saveSettings = (s: WellbeingSettings) => writeJSON(SETTINGS_KEY, s);
+
+/** Rebuilds today's tracking snapshot from storage for the active account. */
+const buildDataFromStorage = (): WellbeingData => {
+  const tracking = loadTracking();
+  const today = getTodayKey();
+  if (tracking && tracking.todayKey === today) {
+    let extraMinutes = 0;
+    if (tracking.sessionStartedAt) extraMinutes = (Date.now() - tracking.sessionStartedAt) / 60000;
+    return {
+      ...defaultData,
+      todayMinutes: tracking.todayMinutes + extraMinutes,
+      weeklyData: tracking.weeklyData || generateEmptyWeekly(),
+      sessionHistory: tracking.sessionHistory || [],
+      screenTimeByPage: tracking.screenTimeByPage || {},
+      dailyGoal: tracking.dailyGoal || 60,
+      currentSession: tracking.sessionStartedAt ? {
+        id: tracking.sessionStartedAt.toString(),
+        page: tracking.currentPage || 'App',
+        startTime: tracking.sessionStartedAt,
+        duration: extraMinutes,
+      } : null,
+    };
+  }
+  if (tracking) {
+    return {
+      ...defaultData,
+      weeklyData: tracking.weeklyData || generateEmptyWeekly(),
+      dailyGoal: tracking.dailyGoal || 60,
+      todayMinutes: 0,
+    };
+  }
+  return defaultData;
 };
 
 export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
+  const accountScope = user?.id ?? 'guest';
+  if (activeScope !== accountScope) activeScope = accountScope;
+
   const [settings, setSettings] = useState<WellbeingSettings>(loadSettings);
-
-  const [data, setData] = useState<WellbeingData>(() => {
-    const tracking = loadTracking();
-    const today = getTodayKey();
-
-    if (tracking && tracking.todayKey === today) {
-      let extraMinutes = 0;
-      if (tracking.sessionStartedAt) {
-        extraMinutes = (Date.now() - tracking.sessionStartedAt) / 60000;
-      }
-      return {
-        ...defaultData,
-        todayMinutes: tracking.todayMinutes + extraMinutes,
-        weeklyData: tracking.weeklyData || generateEmptyWeekly(),
-        sessionHistory: tracking.sessionHistory || [],
-        screenTimeByPage: tracking.screenTimeByPage || {},
-        dailyGoal: tracking.dailyGoal || 60,
-        currentSession: tracking.sessionStartedAt ? {
-          id: tracking.sessionStartedAt.toString(),
-          page: tracking.currentPage || 'App',
-          startTime: tracking.sessionStartedAt,
-          duration: extraMinutes,
-        } : null,
-      };
-    } else if (tracking && tracking.todayKey !== today) {
-      const weeklyData = tracking.weeklyData || generateEmptyWeekly();
-      return {
-        ...defaultData,
-        weeklyData,
-        dailyGoal: tracking.dailyGoal || 60,
-        todayMinutes: 0,
-      };
-    }
-    return defaultData;
-  });
+  const [data, setData] = useState<WellbeingData>(buildDataFromStorage);
 
   // Hub data state
-  const [checkIns, setCheckIns] = useState<DailyCheckIn[]>(() => {
-    try {
-      const raw = localStorage.getItem(CHECKINS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
+  const [checkIns, setCheckIns] = useState<DailyCheckIn[]>(() => readJSON<DailyCheckIn[]>(CHECKINS_KEY, []));
+  const [goals, setGoals] = useState<WellbeingGoal[]>(() => readJSON<WellbeingGoal[]>(GOALS_KEY, initialDefaultGoals));
+  const [habits, setHabits] = useState<WellbeingHabit[]>(() => readJSON<WellbeingHabit[]>(HABITS_KEY, initialDefaultHabits));
+  const [journals, setJournals] = useState<JournalEntry[]>(() => readJSON<JournalEntry[]>(JOURNALS_KEY, []));
+  const [challenges, setChallenges] = useState<WellbeingChallenge[]>(() => readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
+  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>(() => readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
+  const [focusSessions, setFocusSessions] = useState<number>(() => readJSON<{ date: string }[]>(FOCUS_SESSIONS_KEY, []).length);
 
-  const [goals, setGoals] = useState<WellbeingGoal[]>(() => {
-    try {
-      const raw = localStorage.getItem(GOALS_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultGoals;
-    } catch { return initialDefaultGoals; }
-  });
-
-  const [habits, setHabits] = useState<WellbeingHabit[]>(() => {
-    try {
-      const raw = localStorage.getItem(HABITS_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultHabits;
-    } catch { return initialDefaultHabits; }
-  });
-
-  const [journals, setJournals] = useState<JournalEntry[]>(() => {
-    try {
-      const raw = localStorage.getItem(JOURNALS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
-
-  const [challenges, setChallenges] = useState<WellbeingChallenge[]>(() => {
-    try {
-      const raw = localStorage.getItem(CHALLENGES_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultChallenges;
-    } catch { return initialDefaultChallenges; }
-  });
-
-  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>(() => {
-    try {
-      const raw = localStorage.getItem(COACH_MESSAGES_KEY);
-      return raw ? JSON.parse(raw) : defaultCoachWelcomeMessages;
-    } catch { return defaultCoachWelcomeMessages; }
-  });
+  // Reload everything when the signed-in account changes, so one student never
+  // sees another student's entries and each account keeps its own history.
+  const hydratedScope = useRef<string>(accountScope);
+  useEffect(() => {
+    if (hydratedScope.current === accountScope) return;
+    activeScope = accountScope;
+    setSettings(loadSettings());
+    setData(buildDataFromStorage());
+    setCheckIns(readJSON<DailyCheckIn[]>(CHECKINS_KEY, []));
+    setGoals(readJSON<WellbeingGoal[]>(GOALS_KEY, initialDefaultGoals));
+    setHabits(readJSON<WellbeingHabit[]>(HABITS_KEY, initialDefaultHabits));
+    setJournals(readJSON<JournalEntry[]>(JOURNALS_KEY, []));
+    setChallenges(readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
+    setCoachMessages(readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
+    setFocusSessions(readJSON<{ date: string }[]>(FOCUS_SESSIONS_KEY, []).length);
+    hydratedScope.current = accountScope;
+  }, [accountScope]);
 
   // Persist hub states whenever they update
-  useEffect(() => {
-    try { localStorage.setItem(CHECKINS_KEY, JSON.stringify(checkIns)); } catch {}
-  }, [checkIns]);
-
-  useEffect(() => {
-    try { localStorage.setItem(GOALS_KEY, JSON.stringify(goals)); } catch {}
-  }, [goals]);
-
-  useEffect(() => {
-    try { localStorage.setItem(HABITS_KEY, JSON.stringify(habits)); } catch {}
-  }, [habits]);
-
-  useEffect(() => {
-    try { localStorage.setItem(JOURNALS_KEY, JSON.stringify(journals)); } catch {}
-  }, [journals]);
-
-  useEffect(() => {
-    try { localStorage.setItem(CHALLENGES_KEY, JSON.stringify(challenges)); } catch {}
-  }, [challenges]);
-
-  useEffect(() => {
-    try { localStorage.setItem(COACH_MESSAGES_KEY, JSON.stringify(coachMessages)); } catch {}
-  }, [coachMessages]);
+  useEffect(() => { writeJSON(CHECKINS_KEY, checkIns); }, [checkIns, accountScope]);
+  useEffect(() => { writeJSON(GOALS_KEY, goals); }, [goals, accountScope]);
+  useEffect(() => { writeJSON(HABITS_KEY, habits); }, [habits, accountScope]);
+  useEffect(() => { writeJSON(JOURNALS_KEY, journals); }, [journals, accountScope]);
+  useEffect(() => { writeJSON(CHALLENGES_KEY, challenges); }, [challenges, accountScope]);
+  useEffect(() => { writeJSON(COACH_MESSAGES_KEY, coachMessages); }, [coachMessages, accountScope]);
 
   // Auto-start session on mount
   useEffect(() => {
@@ -486,8 +456,20 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
   }, [updateSettings]);
 
   const stopFocus = useCallback(() => {
-    updateSettings({ focusMode: false, focusStartedAt: null, focusPausedAt: null, focusAccumulated: 0 });
-  }, [updateSettings]);
+    // Record the finished focus session (only if it actually ran for a minute).
+    setSettings(prev => {
+      let seconds = prev.focusAccumulated;
+      if (prev.focusStartedAt) seconds += (Date.now() - prev.focusStartedAt) / 1000;
+      if (seconds >= 60) {
+        const log = readJSON<{ date: string; minutes: number }[]>(FOCUS_SESSIONS_KEY, []);
+        writeJSON(FOCUS_SESSIONS_KEY, [...log, { date: getTodayKey(), minutes: Math.round(seconds / 60) }]);
+        setFocusSessions(prev2 => prev2 + 1);
+      }
+      const next = { ...prev, focusMode: false, focusStartedAt: null, focusPausedAt: null, focusAccumulated: 0 };
+      saveSettings(next);
+      return next;
+    });
+  }, []);
 
   const pauseFocus = useCallback(() => {
     const now = Date.now();
@@ -580,11 +562,15 @@ export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
         ? h.completedDates.filter(d => d !== dateStr)
         : [...h.completedDates, dateStr];
 
-      // Calculate simple streak count
-      const sorted = [...nextDates].sort().reverse();
+      // Real streak: consecutive days completed, counting back from today.
+      const done = new Set(nextDates);
       let streak = 0;
-      if (sorted.length > 0) {
-        streak = sorted.length; // Count total completions as active streak metric
+      const cursor = new Date();
+      // A streak stays alive if today is still open (not yet ticked).
+      if (!done.has(cursor.toISOString().split('T')[0])) cursor.setDate(cursor.getDate() - 1);
+      while (done.has(cursor.toISOString().split('T')[0])) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
       }
 
       return {
@@ -674,9 +660,41 @@ Instructions:
     }
   }, [data, habits, goals]);
 
+  // Focus score is measured, never invented: it blends how much of today's study
+  // goal is met, how many of today's habits are ticked, and today's self-reported
+  // focus rating. Zero data means zero score.
+  const focusScore = useMemo(() => {
+    const today = getTodayKey();
+    const goalPart = Math.min(1, data.dailyGoal > 0 ? data.todayMinutes / data.dailyGoal : 0);
+    const habitPart = habits.length ? habits.filter(h => h.completedDates.includes(today)).length / habits.length : 0;
+    const todayCheckIn = checkIns.find(c => c.date === today);
+    const parts: number[] = [goalPart, habitPart];
+    if (todayCheckIn) parts.push(todayCheckIn.focus / 5);
+    const avg = parts.reduce((a, b) => a + b, 0) / parts.length;
+    return Math.round(avg * 100);
+  }, [data.todayMinutes, data.dailyGoal, habits, checkIns]);
+
+  // Challenge progress is derived from actual logs instead of preset numbers.
+  const liveChallenges = useMemo(() => {
+    const hydrationDays = readJSON<string[]>(HYDRATION_KEY, []).length;
+    const studyDays = data.weeklyData.filter(d => d.totalMinutes > 0).length;
+    const derived: Record<string, number> = {
+      c1: studyDays,
+      c2: hydrationDays,
+      c3: journals.length,
+      c4: focusSessions,
+    };
+    return challenges.map(c => {
+      const progress = derived[c.id] !== undefined ? Math.min(c.target, derived[c.id]) : c.progress;
+      return { ...c, progress, completed: c.completed || progress >= c.target };
+    });
+  }, [challenges, data.weeklyData, journals, focusSessions]);
+
+  const liveData = useMemo(() => ({ ...data, focusScore }), [data, focusScore]);
+
   return (
     <WellbeingContext.Provider value={{
-      data, settings, checkIns, goals, habits, journals, challenges, coachMessages,
+      data: liveData, settings, checkIns, goals, habits, journals, challenges: liveChallenges, coachMessages,
       startSession, endSession, setDailyGoal, resetToday, updateSettings,
       getFocusElapsed, startFocus, stopFocus, pauseFocus, resumeFocus,
       addCheckIn, addGoal, updateGoalProgress, toggleGoalStatus, deleteGoal,

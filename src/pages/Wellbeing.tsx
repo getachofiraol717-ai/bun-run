@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GalaxyBackground from '@/components/GalaxyBackground';
 import SEO from '@/components/SEO';
-import { useWellbeing, DailyCheckIn, WellbeingGoal, WellbeingHabit, JournalEntry } from '@/contexts/WellbeingContext';
+import { useWellbeing, scopedKey, HYDRATION_KEY, DailyCheckIn, WellbeingGoal, WellbeingHabit, JournalEntry } from '@/contexts/WellbeingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Clock, Eye, Brain, Target, Timer, Moon,
@@ -11,7 +11,7 @@ import {
   CheckCircle2, RotateCcw, AlertCircle, Plus, Trash2,
   BookOpen, Award, MessageSquare, Send, Calendar,
   Smile, Meh, Frown, Sun, Lock, RefreshCw, Monitor,
-  Sliders, UserCheck, Flame, Check, HelpCircle
+  Sliders, UserCheck, Flame, Check, HelpCircle, Leaf, CloudRain, Waves
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
@@ -37,22 +37,28 @@ const Wellbeing = () => {
   const [focusDisplay, setFocusDisplay] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  // Design Theme state (saved in localStorage)
+  // Design Theme state, saved per account
   const [designTheme, setDesignTheme] = useState<DesignTheme>(() => {
-    return (localStorage.getItem('ku_wellbeing_theme') as DesignTheme) || 'cyberpunk';
+    return (localStorage.getItem(scopedKey('ku_wellbeing_theme')) as DesignTheme) || 'cyberpunk';
   });
 
   const handleThemeChange = (theme: DesignTheme) => {
     setDesignTheme(theme);
-    localStorage.setItem('ku_wellbeing_theme', theme);
+    localStorage.setItem(scopedKey('ku_wellbeing_theme'), theme);
     toast.success(`Theme style updated to ${theme.toUpperCase()}`);
   };
 
   // Real-time live tracking states (second-by-second)
   const [livePageSeconds, setLivePageSeconds] = useState(0);
   const [eyeRestCountdown, setEyeRestCountdown] = useState(20 * 60); // 20 minutes countdown
+  // Hydration starts empty every day and only counts what the student logs.
   const [waterMl, setWaterMl] = useState(() => {
-    return Number(localStorage.getItem('ku_wellbeing_water') || 1000);
+    try {
+      const raw = localStorage.getItem(scopedKey('ku_wellbeing_water'));
+      if (!raw) return 0;
+      const saved = JSON.parse(raw) as { date: string; ml: number };
+      return saved.date === new Date().toISOString().split('T')[0] ? saved.ml : 0;
+    } catch { return 0; }
   });
   const [postureAlertSecs, setPostureAlertSecs] = useState(45 * 60);
 
@@ -264,9 +270,17 @@ const Wellbeing = () => {
 
   const handleWaterAdd = (amount: number) => {
     const next = waterMl + amount;
+    const today = new Date().toISOString().split('T')[0];
     setWaterMl(next);
-    localStorage.setItem('ku_wellbeing_water', next.toString());
-    addTelemetryLog(`💧 Logged +${amount}ml water (${next}ml total)`, 'health');
+    try {
+      localStorage.setItem(scopedKey('ku_wellbeing_water'), JSON.stringify({ date: today, ml: next }));
+      // Record the day once the 2000ml target is reached, for the hydration challenge.
+      if (next >= 2000) {
+        const days: string[] = JSON.parse(localStorage.getItem(scopedKey(HYDRATION_KEY)) || '[]');
+        if (!days.includes(today)) localStorage.setItem(scopedKey(HYDRATION_KEY), JSON.stringify([...days, today]));
+      }
+    } catch {}
+    addTelemetryLog(`Logged +${amount}ml water (${next}ml total)`, 'health');
     toast.success(`Hydration logged: ${next} / 2000 ml`);
   };
 
@@ -432,20 +446,21 @@ const Wellbeing = () => {
               </span>
               <div className="grid grid-cols-2 sm:flex items-center gap-1 w-full sm:w-auto">
                 {[
-                  { id: 'cyberpunk', label: '🌌 Cyberpunk' },
-                  { id: 'zen', label: '🌿 Zen' },
-                  { id: 'telemetry', label: '⚡ Telemetry' },
-                  { id: 'solar', label: '☀️ Solar' },
+                  { id: 'cyberpunk', label: 'Cyberpunk', icon: Sparkles },
+                  { id: 'zen', label: 'Zen', icon: Leaf },
+                  { id: 'telemetry', label: 'Telemetry', icon: Activity },
+                  { id: 'solar', label: 'Solar', icon: Sun },
                 ].map(t => (
                   <button
                     key={t.id}
                     onClick={() => handleThemeChange(t.id as DesignTheme)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5 ${
                       designTheme === t.id
                         ? 'bg-primary text-primary-foreground shadow-md font-bold scale-105'
                         : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                     }`}
                   >
+                    <t.icon className="h-3.5 w-3.5" />
                     {t.label}
                   </button>
                 ))}
@@ -492,7 +507,7 @@ const Wellbeing = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex flex-wrap gap-2 pb-1">
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -735,9 +750,9 @@ const Wellbeing = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'binaural', label: '🧠 10Hz Alpha Beats' },
-                      { id: 'rain', label: '🌧️ Soothing Rain' },
-                      { id: 'space', label: '🌌 Deep Delta Space' },
+                      { id: 'binaural', label: '10Hz Alpha Beats', icon: Brain },
+                      { id: 'rain', label: 'Soothing Rain', icon: CloudRain },
+                      { id: 'space', label: 'Deep Delta Space', icon: Waves },
                     ].map(s => (
                       <button
                         key={s.id}
@@ -745,12 +760,13 @@ const Wellbeing = () => {
                           setSoundType(s.id as any);
                           if (isPlayingSound) toggleAmbientSound();
                         }}
-                        className={`p-2.5 rounded-xl text-xs font-poppins transition-all border ${
+                        className={`p-2.5 rounded-xl text-xs font-poppins transition-all border flex flex-col items-center gap-1.5 ${
                           soundType === s.id
                             ? 'bg-primary/20 border-primary text-primary font-bold'
                             : 'bg-black/30 border-white/10 text-muted-foreground hover:text-foreground'
                         }`}
                       >
+                        <s.icon className="h-4 w-4" />
                         {s.label}
                       </button>
                     ))}
