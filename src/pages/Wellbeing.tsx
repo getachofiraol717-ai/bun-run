@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GalaxyBackground from '@/components/GalaxyBackground';
 import SEO from '@/components/SEO';
-import { useWellbeing, DailyCheckIn, WellbeingGoal, WellbeingHabit, JournalEntry } from '@/contexts/WellbeingContext';
+import { useWellbeing, scopedKey, HYDRATION_KEY, DailyCheckIn, WellbeingGoal, WellbeingHabit, JournalEntry } from '@/contexts/WellbeingContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Clock, Eye, Brain, Target, Timer, Moon,
