@@ -195,30 +195,26 @@ const defaultData: WellbeingData = {
   sessionHistory: [],
   weeklyData: generateEmptyWeekly(),
   screenTimeByPage: {},
-  focusScore: 88,
+  focusScore: 0,
   breakReminders: 0,
 };
 
+// Suggested starting habits — no fake streaks or completions.
 const initialDefaultHabits: WellbeingHabit[] = [
-  { id: 'h1', title: 'Read 20 Minutes', category: 'study', frequency: 'daily', streak: 3, completedDates: [getTodayKey()], createdAt: Date.now() - 86400000 * 3 },
-  { id: 'h2', title: 'Review Study Notes', category: 'study', frequency: 'daily', streak: 2, completedDates: [], createdAt: Date.now() - 86400000 * 2 },
-  { id: 'h3', title: 'Hydrate (2 Liters)', category: 'health', frequency: 'daily', streak: 4, completedDates: [getTodayKey()], createdAt: Date.now() - 86400000 * 4 },
-  { id: 'h4', title: '20-20-20 Eye Breaks', category: 'health', frequency: 'daily', streak: 1, completedDates: [], createdAt: Date.now() - 86400000 },
-  { id: 'h5', title: '15 Min Outdoor Walk', category: 'health', frequency: 'daily', streak: 2, completedDates: [], createdAt: Date.now() - 86400000 * 2 },
-  { id: 'h6', title: 'Daily Reflection Journal', category: 'mindfulness', frequency: 'daily', streak: 1, completedDates: [], createdAt: Date.now() - 86400000 },
+  { id: 'h1', title: 'Read 20 Minutes', category: 'study', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h2', title: 'Review Study Notes', category: 'study', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h3', title: 'Hydrate (2 Liters)', category: 'health', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h4', title: '20-20-20 Eye Breaks', category: 'health', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
+  { id: 'h5', title: 'Daily Reflection Journal', category: 'mindfulness', frequency: 'daily', streak: 0, completedDates: [], createdAt: Date.now() },
 ];
 
-const initialDefaultGoals: WellbeingGoal[] = [
-  { id: 'g1', title: 'Study 5 Hours This Week', description: 'Maintain consistent deep learning blocks across core subjects', category: 'study', targetValue: 300, currentValue: 145, unit: 'mins', status: 'active', createdAt: Date.now() },
-  { id: 'g2', title: 'Maintain 5-Day Habit Streak', description: 'Complete at least 3 daily habits every day', category: 'habits', targetValue: 5, currentValue: 3, unit: 'days', status: 'active', createdAt: Date.now() },
-  { id: 'g3', title: 'Complete 5 Reflection Journal Entries', description: 'Reflect on learning growth and daily accomplishments', category: 'personal', targetValue: 5, currentValue: 2, unit: 'entries', status: 'active', createdAt: Date.now() },
-];
+const initialDefaultGoals: WellbeingGoal[] = [];
 
 const initialDefaultChallenges: WellbeingChallenge[] = [
-  { id: 'c1', title: '7-Day Consistent Study Streak', description: 'Log active learning time every day for 7 consecutive days', period: 'weekly', xpReward: 150, progress: 4, target: 7, completed: false, badge: '🔥 Streak Master' },
-  { id: 'c2', title: 'Hydration Hero', description: 'Log 2000ml of water hydration for 3 days this week', period: 'weekly', xpReward: 100, progress: 2, target: 3, completed: false, badge: '💧 Hydration Hero' },
-  { id: 'c3', title: 'Mindful Learner', description: 'Complete 3 personal growth journal reflections', period: 'weekly', xpReward: 120, progress: 2, target: 3, completed: false, badge: '📝 Mindful Learner' },
-  { id: 'c4', title: 'Deep Focus Master', description: 'Complete 4 study focus sessions with zero distractions', period: 'monthly', xpReward: 200, progress: 3, target: 4, completed: false, badge: '🧠 Focus Specialist' },
+  { id: 'c1', title: '7-Day Consistent Study Streak', description: 'Log active learning time every day for 7 consecutive days', period: 'weekly', xpReward: 150, progress: 0, target: 7, completed: false, badge: '🔥 Streak Master' },
+  { id: 'c2', title: 'Hydration Hero', description: 'Reach your 2000ml hydration target on 3 days this week', period: 'weekly', xpReward: 100, progress: 0, target: 3, completed: false, badge: '💧 Hydration Hero' },
+  { id: 'c3', title: 'Mindful Learner', description: 'Complete 3 personal growth journal reflections', period: 'weekly', xpReward: 120, progress: 0, target: 3, completed: false, badge: '📝 Mindful Learner' },
+  { id: 'c4', title: 'Deep Focus Master', description: 'Complete 4 study focus sessions', period: 'monthly', xpReward: 200, progress: 0, target: 4, completed: false, badge: '🧠 Focus Specialist' },
 ];
 
 const defaultCoachWelcomeMessages: CoachMessage[] = [
