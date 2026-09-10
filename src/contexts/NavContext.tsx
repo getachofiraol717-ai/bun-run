@@ -54,16 +54,39 @@ export const NavProvider = ({ children }: { children: ReactNode }) => {
     refetchInterval: 10000,
   });
 
-  const navItems: NavItem[] = dbItems && dbItems.length > 0
-    ? dbItems.map(item => ({
-        id: item.id,
-        to: item.path,
-        label: item.label,
-        visible: item.visible,
-        order: item.sort_order,
-        authRequired: ALWAYS_AUTH_PATHS.has(item.path) || Boolean(item.auth_required),
-      }))
-    : defaultNavItems;
+  // Merge DB overrides onto the defaults: the database can relabel, reorder,
+  // or hide items, but it can never wipe the menu out entirely (a sparse or
+  // broken nav_items table previously left the navbar with just "Home").
+  const navItems: NavItem[] = (() => {
+    if (!dbItems || dbItems.length === 0) return defaultNavItems;
+    const byPath = new Map(dbItems.map(item => [item.path as string, item]));
+    const merged = defaultNavItems.map(def => {
+      const db = byPath.get(def.to);
+      if (!db) return def;
+      return {
+        id: db.id ?? def.id,
+        to: def.to,
+        label: db.label ?? def.label,
+        visible: db.visible ?? def.visible,
+        order: typeof db.sort_order === 'number' ? db.sort_order : def.order,
+        authRequired: ALWAYS_AUTH_PATHS.has(def.to) || Boolean(db.auth_required ?? def.authRequired),
+      };
+    });
+    // Include any extra custom paths saved in the DB that aren't in defaults.
+    for (const item of dbItems) {
+      if (!defaultNavItems.some(def => def.to === item.path)) {
+        merged.push({
+          id: item.id,
+          to: item.path,
+          label: item.label,
+          visible: item.visible ?? true,
+          order: typeof item.sort_order === 'number' ? item.sort_order : 99,
+          authRequired: ALWAYS_AUTH_PATHS.has(item.path) || Boolean(item.auth_required),
+        });
+      }
+    }
+    return merged;
+  })();
 
   return (
     <NavContext.Provider value={{ navItems, isLoading }}>
