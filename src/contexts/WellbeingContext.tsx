@@ -296,110 +296,45 @@ const buildDataFromStorage = (): WellbeingData => {
 };
 
 export const WellbeingProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
+  const accountScope = user?.id ?? 'guest';
+  if (activeScope !== accountScope) activeScope = accountScope;
+
   const [settings, setSettings] = useState<WellbeingSettings>(loadSettings);
-
-  const [data, setData] = useState<WellbeingData>(() => {
-    const tracking = loadTracking();
-    const today = getTodayKey();
-
-    if (tracking && tracking.todayKey === today) {
-      let extraMinutes = 0;
-      if (tracking.sessionStartedAt) {
-        extraMinutes = (Date.now() - tracking.sessionStartedAt) / 60000;
-      }
-      return {
-        ...defaultData,
-        todayMinutes: tracking.todayMinutes + extraMinutes,
-        weeklyData: tracking.weeklyData || generateEmptyWeekly(),
-        sessionHistory: tracking.sessionHistory || [],
-        screenTimeByPage: tracking.screenTimeByPage || {},
-        dailyGoal: tracking.dailyGoal || 60,
-        currentSession: tracking.sessionStartedAt ? {
-          id: tracking.sessionStartedAt.toString(),
-          page: tracking.currentPage || 'App',
-          startTime: tracking.sessionStartedAt,
-          duration: extraMinutes,
-        } : null,
-      };
-    } else if (tracking && tracking.todayKey !== today) {
-      const weeklyData = tracking.weeklyData || generateEmptyWeekly();
-      return {
-        ...defaultData,
-        weeklyData,
-        dailyGoal: tracking.dailyGoal || 60,
-        todayMinutes: 0,
-      };
-    }
-    return defaultData;
-  });
+  const [data, setData] = useState<WellbeingData>(buildDataFromStorage);
 
   // Hub data state
-  const [checkIns, setCheckIns] = useState<DailyCheckIn[]>(() => {
-    try {
-      const raw = localStorage.getItem(CHECKINS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
+  const [checkIns, setCheckIns] = useState<DailyCheckIn[]>(() => readJSON<DailyCheckIn[]>(CHECKINS_KEY, []));
+  const [goals, setGoals] = useState<WellbeingGoal[]>(() => readJSON<WellbeingGoal[]>(GOALS_KEY, initialDefaultGoals));
+  const [habits, setHabits] = useState<WellbeingHabit[]>(() => readJSON<WellbeingHabit[]>(HABITS_KEY, initialDefaultHabits));
+  const [journals, setJournals] = useState<JournalEntry[]>(() => readJSON<JournalEntry[]>(JOURNALS_KEY, []));
+  const [challenges, setChallenges] = useState<WellbeingChallenge[]>(() => readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
+  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>(() => readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
 
-  const [goals, setGoals] = useState<WellbeingGoal[]>(() => {
-    try {
-      const raw = localStorage.getItem(GOALS_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultGoals;
-    } catch { return initialDefaultGoals; }
-  });
-
-  const [habits, setHabits] = useState<WellbeingHabit[]>(() => {
-    try {
-      const raw = localStorage.getItem(HABITS_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultHabits;
-    } catch { return initialDefaultHabits; }
-  });
-
-  const [journals, setJournals] = useState<JournalEntry[]>(() => {
-    try {
-      const raw = localStorage.getItem(JOURNALS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
-
-  const [challenges, setChallenges] = useState<WellbeingChallenge[]>(() => {
-    try {
-      const raw = localStorage.getItem(CHALLENGES_KEY);
-      return raw ? JSON.parse(raw) : initialDefaultChallenges;
-    } catch { return initialDefaultChallenges; }
-  });
-
-  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>(() => {
-    try {
-      const raw = localStorage.getItem(COACH_MESSAGES_KEY);
-      return raw ? JSON.parse(raw) : defaultCoachWelcomeMessages;
-    } catch { return defaultCoachWelcomeMessages; }
-  });
+  // Reload everything when the signed-in account changes, so one student never
+  // sees another student's entries and each account keeps its own history.
+  const hydratedScope = useRef<string>(accountScope);
+  useEffect(() => {
+    if (hydratedScope.current === accountScope) return;
+    activeScope = accountScope;
+    setSettings(loadSettings());
+    setData(buildDataFromStorage());
+    setCheckIns(readJSON<DailyCheckIn[]>(CHECKINS_KEY, []));
+    setGoals(readJSON<WellbeingGoal[]>(GOALS_KEY, initialDefaultGoals));
+    setHabits(readJSON<WellbeingHabit[]>(HABITS_KEY, initialDefaultHabits));
+    setJournals(readJSON<JournalEntry[]>(JOURNALS_KEY, []));
+    setChallenges(readJSON<WellbeingChallenge[]>(CHALLENGES_KEY, initialDefaultChallenges));
+    setCoachMessages(readJSON<CoachMessage[]>(COACH_MESSAGES_KEY, defaultCoachWelcomeMessages));
+    hydratedScope.current = accountScope;
+  }, [accountScope]);
 
   // Persist hub states whenever they update
-  useEffect(() => {
-    try { localStorage.setItem(CHECKINS_KEY, JSON.stringify(checkIns)); } catch {}
-  }, [checkIns]);
-
-  useEffect(() => {
-    try { localStorage.setItem(GOALS_KEY, JSON.stringify(goals)); } catch {}
-  }, [goals]);
-
-  useEffect(() => {
-    try { localStorage.setItem(HABITS_KEY, JSON.stringify(habits)); } catch {}
-  }, [habits]);
-
-  useEffect(() => {
-    try { localStorage.setItem(JOURNALS_KEY, JSON.stringify(journals)); } catch {}
-  }, [journals]);
-
-  useEffect(() => {
-    try { localStorage.setItem(CHALLENGES_KEY, JSON.stringify(challenges)); } catch {}
-  }, [challenges]);
-
-  useEffect(() => {
-    try { localStorage.setItem(COACH_MESSAGES_KEY, JSON.stringify(coachMessages)); } catch {}
-  }, [coachMessages]);
+  useEffect(() => { writeJSON(CHECKINS_KEY, checkIns); }, [checkIns, accountScope]);
+  useEffect(() => { writeJSON(GOALS_KEY, goals); }, [goals, accountScope]);
+  useEffect(() => { writeJSON(HABITS_KEY, habits); }, [habits, accountScope]);
+  useEffect(() => { writeJSON(JOURNALS_KEY, journals); }, [journals, accountScope]);
+  useEffect(() => { writeJSON(CHALLENGES_KEY, challenges); }, [challenges, accountScope]);
+  useEffect(() => { writeJSON(COACH_MESSAGES_KEY, coachMessages); }, [coachMessages, accountScope]);
 
   // Auto-start session on mount
   useEffect(() => {
