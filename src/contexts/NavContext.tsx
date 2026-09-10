@@ -18,18 +18,20 @@ interface NavContextType {
 
 const NavContext = createContext<NavContextType | undefined>(undefined);
 
+// Main destinations are visible to everyone — guests clicking them are
+// routed to the login page by the auth guard. Only Settings stays auth-only.
 const defaultNavItems: NavItem[] = [
   { id: '1', to: '/', label: 'Home', visible: true, order: 0, authRequired: false },
-  { id: '2', to: '/dashboard', label: 'Dashboard', visible: true, order: 1, authRequired: true },
-  { id: '3', to: '/library', label: 'Library', visible: true, order: 2, authRequired: true },
-  { id: '4', to: '/galaxy', label: 'Galaxy', visible: true, order: 3, authRequired: true },
-  { id: '5', to: '/ai-tutor', label: 'AI Tutor', visible: true, order: 3.5, authRequired: true },
-  { id: '6', to: '/quiz', label: 'Quiz', visible: true, order: 4, authRequired: true },
-  { id: '6b', to: '/communication', label: 'Chat & Hub', visible: true, order: 4.5, authRequired: true },
-  { id: '7', to: '/creator', label: 'Creator', visible: true, order: 5, authRequired: true },
-  { id: '8', to: '/wellbeing', label: 'Wellbeing', visible: true, order: 6, authRequired: true },
-  { id: '9', to: '/pricing', label: 'Pricing', visible: true, order: 7, authRequired: true },
-  { id: '10', to: '/contact', label: 'Contact', visible: true, order: 8, authRequired: true },
+  { id: '2', to: '/dashboard', label: 'Dashboard', visible: true, order: 1, authRequired: false },
+  { id: '3', to: '/library', label: 'Library', visible: true, order: 2, authRequired: false },
+  { id: '4', to: '/galaxy', label: 'Galaxy', visible: true, order: 3, authRequired: false },
+  { id: '5', to: '/ai-tutor', label: 'AI Tutor', visible: true, order: 3.5, authRequired: false },
+  { id: '6', to: '/quiz', label: 'Quiz', visible: true, order: 4, authRequired: false },
+  { id: '6b', to: '/communication', label: 'Chat & Hub', visible: true, order: 4.5, authRequired: false },
+  { id: '7', to: '/creator', label: 'Creator', visible: true, order: 5, authRequired: false },
+  { id: '8', to: '/wellbeing', label: 'Wellbeing', visible: true, order: 6, authRequired: false },
+  { id: '9', to: '/pricing', label: 'Pricing', visible: true, order: 7, authRequired: false },
+  { id: '10', to: '/contact', label: 'Contact', visible: true, order: 8, authRequired: false },
   { id: '11', to: '/settings', label: 'Settings', visible: true, order: 9, authRequired: true },
 ];
 
