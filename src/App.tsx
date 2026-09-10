@@ -86,6 +86,8 @@ const AppContent = () => {
       <Routes>
         {/* Core */}
         <Route path="/"               element={<Index />} />
+        <Route path="/index"          element={<Index />} />
+        <Route path="/home"           element={<Index />} />
         <Route path="/login"          element={<Login />} />
         <Route path="/register"       element={<Register />} />
         <Route path="/reset-password" element={<ResetPassword />} />
